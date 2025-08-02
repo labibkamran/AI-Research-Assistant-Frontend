@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Research Assistant</title>
+    <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Topics List Page -->
+        <div id="topicsPage" class="page">
+            <div class="header">
+                <h2>Research Assistant</h2>
+                <p>Organize your research by topics</p>
+            </div>
+            
+            <div class="topic-controls">
+                <button id="addTopicBtn" class="primary-btn">+ Add New Topic</button>
+            </div>
+            
+            <div id="topicsList" class="topics-list">
+                <!-- Topics will be dynamically loaded here -->
+            </div>
+            
+            <!-- Add Topic Modal -->
+            <div id="addTopicModal" class="modal hidden">
+                <div class="modal-content">
+                    <h3>Add New Topic</h3>
+                    <input type="text" id="topicNameInput" placeholder="Enter topic name" maxlength="50">
+                    <div class="modal-actions">
+                        <button id="saveTopicBtn" class="primary-btn">Save</button>
+                        <button id="cancelTopicBtn" class="secondary-btn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic Detail Page -->
+        <div id="topicDetailPage" class="page hidden">
+            <div class="header">
+                <button id="backBtn" class="back-btn" title="Back to Topics">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h2 id="currentTopicName">Topic Name</h2>
+            </div>
+
+            <div class="actions">
+                <button id="summarizeBtn" class="primary-btn">Summarize</button>
+                <button id="suggestBtn" class="primary-btn">Suggest Topics</button>
+                <button id="viewSourcesBtn" class="secondary-btn">View Sources</button>
+            </div>
+
+            <div class="notes">
+                <h3>Research Notes</h3>
+                <textarea id="notes" placeholder="Take notes for this topic..."></textarea>
+                <button id="saveNotesBtn" class="primary-btn">Save Notes</button>
+            </div>
+
+            <div id="results"></div>
+            
+            <div class="topic-actions">
+                <button id="deleteTopicBtn" class="delete-btn">Delete Topic</button>
+            </div>
+        </div>
+
+        <!-- Sources Page -->
+        <div id="sourcesPage" class="page hidden">
+            <div class="header">
+                <button id="backToTopicBtn" class="back-btn" title="Back to Topic">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h2 id="sourcesTopicName">Sources</h2>
+            </div>
+
+            <div class="sources-controls">
+                <button id="addSourceBtn" class="primary-btn">+ Add New Source</button>
+                <button id="generateCitationFromSourcesBtn" class="secondary-btn">Generate Citations</button>
+            </div>
+
+            <div id="sourcesList" class="sources-list">
+                <!-- Sources will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- Add Source Modal -->
+        <div id="addSourceModal" class="modal hidden">
+            <div class="modal-content source-modal">
+                <h3>Add Research Source</h3>
+                <div class="source-form">
+                    <div class="form-group">
+                        <label for="sourceUrl">URL</label>
+                        <div class="url-input-group">
+                            <input type="url" id="sourceUrl" placeholder="https://example.com/article">
+                            <button id="autoFillBtn" class="small-btn">Auto-fill</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceTitle">Title</label>
+                        <input type="text" id="sourceTitle" placeholder="Article or source title">
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceAuthor">Author(s)</label>
+                        <input type="text" id="sourceAuthor" placeholder="Author names">
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceDate">Publication Date</label>
+                        <input type="date" id="sourceDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceType">Source Type</label>
+                        <select id="sourceType">
+                            <option value="article">Article</option>
+                            <option value="book">Book</option>
+                            <option value="journal">Journal</option>
+                            <option value="website">Website</option>
+                            <option value="video">Video</option>
+                            <option value="podcast">Podcast</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceCredibility">Credibility Rating</label>
+                        <div class="credibility-rating">
+                            <div class="stars" id="credibilityStars">
+                                <span class="star" data-rating="1">★</span>
+                                <span class="star" data-rating="2">★</span>
+                                <span class="star" data-rating="3">★</span>
+                                <span class="star" data-rating="4">★</span>
+                                <span class="star" data-rating="5">★</span>
+                            </div>
+                            <span id="credibilityLabel">Select rating</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceNotes">Notes</label>
+                        <textarea id="sourceNotes" placeholder="Additional notes about this source..." rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="saveSourceBtn" class="primary-btn">Save Source</button>
+                    <button id="cancelSourceBtn" class="secondary-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citation Modal -->
+        <div id="citationModal" class="modal hidden">
+            <div class="modal-content citation-modal">
+                <h3>Generated Citations</h3>
+                <div class="citation-formats">
+                    <div class="citation-format">
+                        <h4>APA Format</h4>
+                        <div id="apaCitations" class="citation-text"></div>
+                        <button class="copy-btn" data-format="apa">Copy APA</button>
+                    </div>
+                    <div class="citation-format">
+                        <h4>MLA Format</h4>
+                        <div id="mlaCitations" class="citation-text"></div>
+                        <button class="copy-btn" data-format="mla">Copy MLA</button>
+                    </div>
+                    <div class="citation-format">
+                        <h4>Chicago Format</h4>
+                        <div id="chicagoCitations" class="citation-text"></div>
+                        <button class="copy-btn" data-format="chicago">Copy Chicago</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="closeCitationBtn" class="secondary-btn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load component scripts -->
+    <script src="components/credibility.js"></script>
+    <script src="components/sources.js"></script>
+    <script src="components/citations.js"></script>
+    <script src="sidepanel.js"></script>
+</body>
+</html>
