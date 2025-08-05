@@ -1,5 +1,8 @@
 // ===== MAIN APPLICATION CONTROLLER =====
 
+// Configuration
+const API_BASE_URL = 'http://localhost:8080';
+
 // Global state
 let currentTopicId = null;
 let topics = [];
@@ -25,6 +28,7 @@ function setupEventListeners() {
     document.getElementById('backBtn').addEventListener('click', () => showTopicsPage());
     document.getElementById('summarizeBtn').addEventListener('click', summarizeText);
     document.getElementById('suggestBtn').addEventListener('click', suggestTopics);
+    document.getElementById('explainBtn').addEventListener('click', explainText);
     document.getElementById('saveNotesBtn').addEventListener('click', saveNotes);
     document.getElementById('deleteTopicBtn').addEventListener('click', deleteTopic);
     document.getElementById('viewSourcesBtn').addEventListener('click', () => showSourcesPage(currentTopicId));
@@ -353,7 +357,7 @@ async function summarizeText() {
 
         showResult('Summarizing...');
 
-        const response = await fetch('http://localhost:8080/api/research/process', {
+        const response = await fetch(`${API_BASE_URL}/api/research/process`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: result, operation: 'summarize' })
@@ -398,7 +402,7 @@ async function suggestTopics() {
 
         showResult('Generating topic suggestions...');
 
-        const response = await fetch('http://localhost:8080/api/research/process', {
+        const response = await fetch(`${API_BASE_URL}/api/research/process`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: result, operation: 'suggest' })
@@ -439,6 +443,70 @@ function showSuggestedTopics(suggestions) {
     // Add event listener for the clear button
     setTimeout(() => {
         const clearBtn = document.getElementById('clearSuggestionsBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearResults);
+        }
+    }, 100);
+}
+
+async function explainText() {
+    if (!currentTopicId) return;
+    
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const [{ result }] = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: () => window.getSelection().toString()
+        });
+
+        if (!result) {
+            showResult('Please select some text first');
+            return;
+        }
+
+        showResult('Explaining...');
+
+        const response = await fetch(`${API_BASE_URL}/api/research/process`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: result, operation: 'explain' })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const text = await response.text();
+        const formattedResult = text.replace(/\n/g, '<br>');
+        
+        // Show explanation without "Add to Sources" button
+        showExplanation(formattedResult);
+
+    } catch (error) {
+        showResult('Error: ' + error.message);
+    }
+}
+
+function showExplanation(explanation) {
+    const resultDiv = document.getElementById('results');
+    resultDiv.innerHTML = `
+        <div class="result-item">
+            <div class="result-header">
+                <h3>Explanation</h3>
+            </div>
+            <div class="result-content">${explanation}</div>
+            <div style="margin-top: 15px; text-align: center;">
+                <button id="clearExplanationBtn" class="secondary-btn" style="padding: 8px 16px;">
+                    Clear Explanation
+                </button>
+            </div>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+    
+    // Add event listener for the clear button
+    setTimeout(() => {
+        const clearBtn = document.getElementById('clearExplanationBtn');
         if (clearBtn) {
             clearBtn.addEventListener('click', clearResults);
         }
